@@ -1,0 +1,68 @@
+{
+    "author": "Magnosity",
+    "dependencies": {
+        "pebble-clay": "^1.0.3"
+    },
+    "keywords": [],
+    "name": "summit",
+    "pebble": {
+        "capabilities": [
+            "configurable"
+        ],
+        "displayName": "Summit",
+        "enableMultiJS": true,
+        "messageKeys": [
+            "PEBKIT_READY",
+            "CURRENCY_SYMBOL"
+        ],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/Launcher Icon.png",
+                    "menuIcon": true,
+                    "name": "IMG_LAUNCHER_ICON",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/Person_9x24.png",
+                    "name": "IMG_ATTENDEES",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/PersonMinus_15x18.png",
+                    "name": "IMG_PERSON_MINUS",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/PersonPlus_15x18.png",
+                    "name": "IMG_PERSON_PLUS",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/Settings_18x18.png",
+                    "name": "IMG_SETTINGS",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite",
+            "emery"
+        ],
+        "uuid": "3864490e-9df0-49a3-95b3-49c35287dd03",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
