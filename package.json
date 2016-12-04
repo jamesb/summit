@@ -13,7 +13,8 @@
         "enableMultiJS": true,
         "messageKeys": [
             "PEBKIT_READY",
-            "CURRENCY_SYMBOL"
+            "CURRENCY_SYMBOL",
+            "DEFAULT_KILO_SALARY"
         ],
         "projectType": "native",
         "resources": {

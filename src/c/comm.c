@@ -122,6 +122,21 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     comm_savePersistent();
   }
 
+  if ( (tuple = dict_find(iterator, MESSAGE_KEY_DEFAULT_KILO_SALARY)) != NULL ) {
+    const char* readable = "Default Salary";
+    uint32_t defaultMilliHourly = 0;
+    if (unloadTupleLong((long int*)&defaultMilliHourly, tuple, readable)) {
+      if ( (mpaRet = u32mult_u32_u32(&defaultMilliHourly, defaultMilliHourly, (1000*1000/2080))) != MPA_SUCCESS) {
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Error setting %s in data model: %s", readable, MagPebApp_getErrMsg(mpaRet));
+      }
+      if ( (mpaRet = Model_setDefaultMilliHourly(dataModel, (uint32_t)defaultMilliHourly)) != MPA_SUCCESS) {
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Error setting %s in data model: %s", readable, MagPebApp_getErrMsg(mpaRet));
+      }
+    }
+    comm_savePersistent();
+  }
+
+
 
   if (!commHandlers.updateViewData) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Attempted operation on NULL pointer.");
@@ -324,15 +339,21 @@ void comm_savePersistent() {
     return;
   }
 
+  MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
+
+	if ( (mpaRet = Model_getDefaultMilliHourly(dataModel, &(settings.defaultMilliHourly))) != MPA_SUCCESS) {
+		APP_LOG(APP_LOG_LEVEL_ERROR, "Could not retrieve custom setting: %s", MagPebApp_getErrMsg(mpaRet));
+		return;
+	}
   persist_write_data(SETTINGS_STRUCT_KEY, &settings, sizeof(settings));
 
   // Write all string settings
-  MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
   for (int keyIdx=0; keyIdx<LAST_STR_SETTING; keyIdx++) {
     // Fetch data stored elsewhere
     switch(keyIdx) {
       case CURRENCY_SYMBOL_SETTING: {
-        if (strSettings[keyIdx] != NULL) { free(strSettings[keyIdx]); strSettings[keyIdx] = NULL; }
+        // There should be no allocated memory for this setting at this point.
+        strSettings[keyIdx] = NULL;
         if ( (mpaRet = Model_getCurrencySymbol(dataModel, &strSettings[keyIdx])) != MPA_SUCCESS) {
           APP_LOG(APP_LOG_LEVEL_ERROR, "Could not retrieve custom string: %s", MagPebApp_getErrMsg(mpaRet));
           return;
@@ -341,7 +362,10 @@ void comm_savePersistent() {
       }
     } // end switch(keyIdx)
 
-    
+
+
+APP_LOG(APP_LOG_LEVEL_INFO, "About to write to persistent memory...");
+
     // Write data to persistent memory on watch
     status_t result = 0;
     if ( (result = persist_write_string(keyIdx, strSettings[keyIdx])) < 0) {
@@ -365,12 +389,17 @@ void comm_loadPersistent() {
     return;
   }
 
+  MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
+
   if (persist_exists(SETTINGS_STRUCT_KEY)) {
     persist_read_data(SETTINGS_STRUCT_KEY, &settings, sizeof(settings));
   }
 
+	if ( (mpaRet = Model_setDefaultMilliHourly(dataModel, settings.defaultMilliHourly)) != MPA_SUCCESS) {
+		APP_LOG(APP_LOG_LEVEL_ERROR, "Error setting %s in data model: %s", "default salary", MagPebApp_getErrMsg(mpaRet));
+	}
+
   // Read all string settings
-  MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
   int keyIdx;
   for (keyIdx=0; keyIdx<LAST_STR_SETTING; keyIdx++) {
     if (persist_exists(keyIdx)) {
@@ -420,19 +449,19 @@ void comm_tickHandler(struct tm *tick_time, TimeUnits units_changed) {
       APP_LOG(APP_LOG_LEVEL_ERROR, "Error returned: %d", ret);
       return;
     }
-    HEAP_LOG(timebuf);
+    // HEAP_LOG(timebuf);
   }
 
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
   if ( (mpaRet = Model_updateTime(dataModel, tick_time, units_changed)) != MPA_SUCCESS) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Error encountered during model time update: %s", MagPebApp_getErrMsg(mpaRet));
   }
-  
+
   if (!commHandlers.updateViewTime) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Attempted operation on NULL pointer.");
   }
   (*commHandlers.updateViewTime)(tick_time);
-  
+
   if (!commHandlers.updateViewData) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Attempted operation on NULL pointer.");
   } else {
@@ -522,7 +551,7 @@ void comm_adjustAttendance(const int16_t attenIncr, const uint16_t attenSalary) 
     APP_LOG(APP_LOG_LEVEL_ERROR, "Error adjusting attendance: %s", MagPebApp_getErrMsg(mpaRet));
     return;
   }
-  
+
   if (!commHandlers.updateViewData) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Attempted operation on NULL pointer.");
   } else {
@@ -540,7 +569,7 @@ void comm_toggleMeeting() {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Data model is not yet initialized.");
     return;
   }
-  
+
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
   Model_State status = MODEL_STATE_NO_ATTENDEES;
   if ( (mpaRet = Model_getStatus(dataModel, &status)) != MPA_SUCCESS) {
@@ -567,7 +596,7 @@ void comm_toggleMeeting() {
       APP_LOG(APP_LOG_LEVEL_WARNING, "Unexpected model state: %d", status);
     }
   }
-      
+
   if (!commHandlers.updateViewData) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Attempted operation on NULL pointer.");
   } else {
@@ -585,7 +614,7 @@ void comm_resetMeeting() {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Data model is not yet initialized.");
     return;
   }
-  
+
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
   if ( (mpaRet = Model_reset(dataModel)) != MPA_SUCCESS) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Error encountered: %s", MagPebApp_getErrMsg(mpaRet));

@@ -27,7 +27,8 @@ MagPebApp_ErrCode Model_destroy(Model* this);
 
 MagPebApp_ErrCode Model_reset(Model* this);
 MagPebApp_ErrCode Model_setCurrencySymbol(Model* this, const char*);
-MagPebApp_ErrCode Model_adjustAttendance(Model* this, const int16_t, const uint16_t);
+MagPebApp_ErrCode Model_setDefaultMilliHourly(Model* this, const uint32_t);
+MagPebApp_ErrCode Model_adjustAttendance(Model* this, const int16_t, const uint32_t);
 MagPebApp_ErrCode Model_startMeeting(Model* this);
 MagPebApp_ErrCode Model_stopMeeting(Model* this);
 
@@ -35,6 +36,7 @@ MagPebApp_ErrCode Model_getFmtdMeetingCost(const Model* this, char**);
 MagPebApp_ErrCode Model_getNumAttendees(const Model* this, uint16_t*);
 
 MagPebApp_ErrCode Model_getCurrencySymbol(const Model* this, char**);
+MagPebApp_ErrCode Model_getDefaultMilliHourly(Model* this, uint32_t*);
 MagPebApp_ErrCode Model_getStatus(const Model* this, Model_State*);
 
 MagPebApp_ErrCode Model_updateTime(Model* this, struct tm *tick_time, TimeUnits units_changed);

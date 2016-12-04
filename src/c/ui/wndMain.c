@@ -75,21 +75,21 @@ void wndMain_updateData(const Model* model) {
   if (!window_is_loaded(wndMain)) return;
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
   long lret = 0;
-  
+
   // Update meeting cost
   char* meetingCost = NULL;
   static char meetingCostBuf[16];
   if ( (mpaRet = Model_getFmtdMeetingCost(model, &meetingCost)) != MPA_SUCCESS) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Could not get string: %s", MagPebApp_getErrMsg(mpaRet));
   } else {
-    if (!(lret = strxcpy(meetingCostBuf, sizeof(meetingCostBuf), meetingCost, "Meeting cost"))) { 
+    if (!(lret = strxcpy(meetingCostBuf, sizeof(meetingCostBuf), meetingCost, "Meeting cost"))) {
       APP_LOG(APP_LOG_LEVEL_ERROR, "String was not written correctly. Ret=%ld", lret);
     } else {
       text_layer_set_text(lyrMeetingCost, meetingCostBuf);
     }
   }
   if (meetingCost != NULL) { free(meetingCost);  meetingCost = NULL; }
-  
+
   // Update attendees
   uint16_t numAttendees = 0;
   static char attendeesBuf[16];
@@ -104,7 +104,7 @@ void wndMain_updateData(const Model* model) {
       text_layer_set_text(lyrAttendees, attendeesBuf);
     }
   }
-  
+
 }
 
 
@@ -114,7 +114,7 @@ void wndMain_clickHandlerPersonPlus(ClickRecognizerRef recognizer, void *context
   if (!myHandlers.adjustAttendance) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Attempted operation on NULL pointer.");
   } else {
-    (*myHandlers.adjustAttendance)(1, 24038);
+    (*myHandlers.adjustAttendance)(1, 0);
   }
 }
 
@@ -125,7 +125,7 @@ void wndMain_clickHandlerPersonMinus(ClickRecognizerRef recognizer, void *contex
   if (!myHandlers.adjustAttendance) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Attempted operation on NULL pointer.");
   } else {
-    (*myHandlers.adjustAttendance)(-1, 24038);
+    (*myHandlers.adjustAttendance)(-1, 0);
   }
 }
 
@@ -169,16 +169,16 @@ static void unobstructedChange(AnimationProgress progress, void *context) {
   // Get the total available screen real-estate
   GRect bounds = layer_get_unobstructed_bounds(window_get_root_layer(wndMain));
   GRect frame;
-  
+
   // Shift layers
   frame = layer_get_frame(text_layer_get_layer(lyrMeetingCost));
   frame.origin.y = rel2Pxl(bounds.size.h, relHtCost);
   layer_set_frame(text_layer_get_layer(lyrMeetingCost), frame);
-  
+
   frame = layer_get_frame(bitmap_layer_get_layer(lyrAttendIcon));
   frame.origin.y = rel2Pxl(bounds.size.h, relHtAttend);
   layer_set_frame(bitmap_layer_get_layer(lyrAttendIcon), frame);
-  
+
   frame = layer_get_frame(text_layer_get_layer(lyrAttendees));
   frame.origin.y = rel2Pxl(bounds.size.h, relHtAttend);
   layer_set_frame(text_layer_get_layer(lyrAttendees), frame);
@@ -202,7 +202,7 @@ static void wndMain_load(Window* window) {
   bmpPersonMinus = gbitmap_create_with_resource(RESOURCE_ID_IMG_PERSON_MINUS);
   bmpSettings =    gbitmap_create_with_resource(RESOURCE_ID_IMG_SETTINGS);
   bmpAttendIcon =  gbitmap_create_with_resource(RESOURCE_ID_IMG_ATTENDEES);
-  
+
   // Initialize the action bar
   actionBar = action_bar_layer_create();
   action_bar_layer_set_click_config_provider(actionBar, wndMain_clickConfigProvider);
@@ -212,13 +212,13 @@ static void wndMain_load(Window* window) {
   action_bar_layer_set_icon_animated(actionBar, BUTTON_ID_UP,     bmpPersonPlus,  true);
   action_bar_layer_set_icon_animated(actionBar, BUTTON_ID_DOWN,   bmpPersonMinus, true);
   action_bar_layer_set_icon_animated(actionBar, BUTTON_ID_SELECT, bmpSettings,    true);
-  
+
   // Meeting cost
   lyrMeetingCost = text_layer_create( GRect(0, RELH(bounds, relHtCost), bounds.size.w, 30) );
   textLayer_stylize(lyrMeetingCost, GColorClear, colors.normalFore, GTextAlignmentCenter, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text(lyrMeetingCost, "");
   layer_add_child(lyrRoot, text_layer_get_layer(lyrMeetingCost));
- 
+
   // Number of attendees
   GRect rctNumAttend = GRect(RELW(bounds, 50), RELH(bounds, relHtAttend), RELW(bounds, 30), 30);
   lyrAttendees = text_layer_create(rctNumAttend);
@@ -239,14 +239,14 @@ static void wndMain_load(Window* window) {
   bitmap_layer_set_bitmap(lyrAttendIcon, bmpAttendIcon);
   bitmap_layer_set_compositing_mode(lyrAttendIcon, GCompOpSet);
   layer_add_child(lyrRoot, bitmap_layer_get_layer(lyrAttendIcon));
-  
+
 /* JRB NOTE: Watch apps don't get quick view notifications!
   UnobstructedAreaHandlers handlers = {
     .change = unobstructedChange
   };
   unobstructed_area_service_subscribe(handlers, NULL);
 */
-  
+
 }
 
 
@@ -255,11 +255,11 @@ static void wndMain_load(Window* window) {
 static void wndMain_unload(Window* window) {
   // Destroy attendee icon layer
   bitmap_layer_destroy(lyrAttendIcon);
-  
+
   // Destroy text layers
   text_layer_destroy(lyrAttendees);    lyrAttendees = NULL;
   text_layer_destroy(lyrMeetingCost);  lyrMeetingCost = NULL;
-  
+
   // Destroy the ActionBarLayer
   action_bar_layer_destroy(actionBar);
 
@@ -268,7 +268,7 @@ static void wndMain_unload(Window* window) {
   gbitmap_destroy(bmpPersonMinus);
   gbitmap_destroy(bmpSettings);
   gbitmap_destroy(bmpAttendIcon);
-  
+
   lyrDigitime_destroy();
 }
 
@@ -290,7 +290,7 @@ void wndMain_create() {
     .load =   wndMain_load,
     .unload = wndMain_unload
   });
-  
+
   window_set_click_config_provider(wndMain, (ClickConfigProvider) wndMain_clickConfigProvider);
 
   wndMain_updateTime(NULL);
@@ -304,7 +304,7 @@ void wndMain_destroy() {
   if (!wndMain) {
     APP_LOG(APP_LOG_LEVEL_WARNING, "Attempting to destroy a null pointer!");
   } else {
-    wndSettings_destroy(); 
+    wndSettings_destroy();
     window_destroy(wndMain);
     wndMain = NULL;
   }

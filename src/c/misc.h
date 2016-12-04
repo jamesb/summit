@@ -37,7 +37,7 @@
 /////////////////////////////////////////////////////////////////////////////
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html
-/// 
+///
 /// @param[in,out]  c  The variable that will hold the sum
 /// @param[in]      a  the augend of the addition operation
 /// @param[in]      b  the addend of the addition operation
@@ -57,7 +57,7 @@
 /////////////////////////////////////////////////////////////////////////////
 /// Checks for integer overflow before performing an subtraction operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html
-/// 
+///
 /// @param[in,out]  c  The variable that will hold the difference
 /// @param[in]      a  the minuend of the subtraction operation
 /// @param[in]      b  the subtrahend of the subtraction operation
@@ -91,6 +91,7 @@ MagPebApp_ErrCode u32mult_u32_u32(uint32_t* product, const uint32_t multiplicand
 MagPebApp_ErrCode s32mult_s32_s32(int32_t* product, const int32_t multiplicand, const int32_t multiplier);
 
 MagPebApp_ErrCode s32RoundUp(int32_t* rounded, const int32_t numToRound, const int32_t multiple);
+MagPebApp_ErrCode s32RoundNear(int32_t* rounded, const int32_t numToRound, const int32_t multiple);
 
 
 // Pebble UI functions

@@ -7,7 +7,7 @@
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -30,7 +30,7 @@ MagPebApp_ErrCode u16add_u16_u16(uint16_t *sum, const uint16_t augend, const uin
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -57,7 +57,7 @@ MagPebApp_ErrCode u16add_u16_s16(uint16_t *sum, const uint16_t augend, const int
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -80,7 +80,7 @@ MagPebApp_ErrCode s16add_u16_u16(int16_t *sum, const uint16_t augend, const uint
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -107,7 +107,7 @@ MagPebApp_ErrCode s16add_u16_s16(int16_t *sum, const uint16_t augend, const int1
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -130,7 +130,7 @@ MagPebApp_ErrCode u32add_u32_u32(uint32_t *sum, const uint32_t augend, const uin
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -157,7 +157,7 @@ MagPebApp_ErrCode u32add_u32_s32(uint32_t *sum, const uint32_t augend, const int
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -180,7 +180,7 @@ MagPebApp_ErrCode s32add_u32_u32(int32_t *sum, const uint32_t augend, const uint
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -209,7 +209,7 @@ MagPebApp_ErrCode s32add_u32_s32(int32_t *sum, const uint32_t augend, const int3
 /// Checks for integer overflow before performing an addition operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html and from
 /// http://c-faq.com/misc/intovf.html
-/// 
+///
 /// @param[in,out]  sum  Pointer will equal the sum of the addition, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -235,7 +235,7 @@ MagPebApp_ErrCode s32add_s32_s32(int32_t* sum, const int32_t augend, const int32
 /////////////////////////////////////////////////////////////////////////////
 /// Checks for integer overflow before performing a multiplication operation.
 /// This code largely borrowed from https://www.fefe.de/intof.html
-/// 
+///
 /// @param[in,out]  product  The variable that will hold the product, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -257,9 +257,9 @@ MagPebApp_ErrCode u32mult_u32_u32(uint32_t* product, const uint32_t multiplicand
 
 /////////////////////////////////////////////////////////////////////////////
 /// Checks for integer overflow before performing a multiplication operation.
-/// This code largely borrowed from: 
+/// This code largely borrowed from:
 /// https://www.securecoding.cert.org/confluence/display/c/INT32-C.+Ensure+that+operations+on+signed+integers+do+not+result+in+overflow
-/// 
+///
 /// @param[in,out]  product  The variable that will hold the product, if no
 ///       overflow would occur. Upon entry to this function, this must point
 ///       to a valid variable.
@@ -285,18 +285,18 @@ MagPebApp_ErrCode s32mult_s32_s32(int32_t* product, const int32_t multiplicand, 
       if ( (multiplicand != 0) && (multiplier < (MPA_MAX(int32_t) / multiplicand))) return MPA_OVERFLOW_ERR;
     } /* End if multiplicand and multiplier are nonpositive */
   } /* End if multiplicand is nonpositive */
- 
+
   *product = multiplicand * multiplier;
   return MPA_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
-/// Rounds up to the value nearest the specified multiple. No floating point
-/// math is used.
-/// This code largely borrowed from: 
+/// Rounds up to the value nearest the specified multiple.
+/// No floating point math is used.
+/// This code largely borrowed from:
 /// http://stackoverflow.com/questions/3407012/c-rounding-up-to-the-nearest-multiple-of-a-number
-/// 
+///
 /// @param[in,out]  rounded  The variable that will hold the rounded result
 ///       Upon entry to this function, this must point to a valid variable.
 /// @param[in]      numToRound  original number to be rounded
@@ -319,11 +319,50 @@ MagPebApp_ErrCode s32RoundUp(int32_t* rounded, const int32_t numToRound, const i
   if (numToRound < 0) {
     int32_t temp = abs(numToRound);
     if ( (mpaRet = s32add_s32_s32(&temp, temp, -remainder)) != MPA_SUCCESS) return mpaRet;
-    *rounded = temp;
+    *rounded = -temp;
   } else {
     int32_t temp = numToRound;
     if ( (mpaRet = s32add_s32_s32(&temp, temp, multiple)) != MPA_SUCCESS) return mpaRet;
     if ( (mpaRet = s32add_s32_s32(&temp, temp, -remainder)) != MPA_SUCCESS) return mpaRet;
+    *rounded = temp;
+  }
+  return mpaRet;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+/// Rounds up or down to the value nearest the specified multiple. For
+/// values that are halfway between multiples (whether positive or negative),
+/// this function rounds away from zero.
+/// No floating point math is used.
+///
+/// @param[in,out]  rounded  The variable that will hold the rounded result
+///       Upon entry to this function, this must point to a valid variable.
+/// @param[in]      numToRound  original number to be rounded
+/// @param[in]      multiple  specifies that the rounding operation should
+///       result in the nearest multiple of this value
+///
+/// @return  MPA_SUCCESS on success
+///          MPA_NULL_POINTER_ERR if the rounded pointer is NULL.
+///          MPA_OVERFLOW_ERR if the operation would cause an integer overflow
+/////////////////////////////////////////////////////////////////////////////
+MagPebApp_ErrCode s32RoundNear(int32_t* rounded, const int32_t numToRound, const int32_t multiple) {
+  MPA_RETURN_IF_NULL(rounded);
+  MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
+  if (multiple == 0) *rounded = numToRound;
+
+  int32_t remainder = abs(numToRound) % multiple;
+  if (remainder == 0) *rounded = numToRound;
+
+  if (numToRound < 0) {
+    int32_t temp = abs(numToRound);
+    if ( (mpaRet = s32add_s32_s32(&temp, temp, multiple/2)) != MPA_SUCCESS) return mpaRet;
+    if ( (mpaRet = s32add_s32_s32(&temp, temp, -(temp % multiple))) != MPA_SUCCESS) return mpaRet;
+    *rounded = -temp;
+  } else {
+    int32_t temp = numToRound;
+    if ( (mpaRet = s32add_s32_s32(&temp, temp, multiple/2)) != MPA_SUCCESS) return mpaRet;
+    if ( (mpaRet = s32add_s32_s32(&temp, temp, -(temp % multiple))) != MPA_SUCCESS) return mpaRet;
     *rounded = temp;
   }
   return mpaRet;

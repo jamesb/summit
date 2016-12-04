@@ -7,14 +7,47 @@ module.exports = [
     "type": "section",
     "items": [
       {
-        "type": "input",
-        "messageKey": "CUSTOM_STR",
-        "defaultValue": "",
-        "label": "Custom String",
-        "attributes": {
-          "placeholder": "eg: my string",
-        }
+        "type": "select",
+        "messageKey": "CURRENCY_SYMBOL",
+        "label": "Currency Symbol",
+        "defaultValue": "$",
+        "options": [
+          {
+            "label": "$ (Dollar)",
+            "value": "$"
+          },
+          {
+            "label": "€ (Euro)",
+            "value": "€"
+          },
+          {
+            "label": "£ (Pound)",
+            "value": "£"
+          },
+          {
+            "label": "¥ (Yen / Yuan)",
+            "value": "¥"
+          },
+          {
+            "label": "¤ (Generic)",
+            "value": "¤"
+          },
+          {
+            "label": "(No Symbol)",
+            "value": ""
+          }
+        ]
       },
+      {
+        "type": "slider",
+        "messageKey": "DEFAULT_KILO_SALARY",
+        "defaultValue": 50,
+        "label": "Default Annual Wage",
+        "description": "Average salary to use for people attending a meeting",
+        "min": 10,
+        "max": 200,
+        "step": 10
+      }
     ]
   },
   {

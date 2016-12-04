@@ -56,27 +56,30 @@ MagPebApp_ErrCode Model_init(Model* this) {
   // Initialize/allocate data members
   this->currencySymbol = NULL;
   if ( (mpaRet = Model_reset(this)) != MPA_SUCCESS) { goto freemem; }
-  
+
   // Determine locale
   const char *locale = i18n_get_system_locale();
-  
-  // JRB NOTE: When setting these default rates, we consider the 
-  // "paid work year" to be 52 weeks per year, with 40 hours per 
+
+  // JRB NOTE: When setting these default rates, we consider the
+  // "paid work year" to be 52 weeks per year, with 40 hours per
   // work-week. (52 * 40) == 2080 work-minutes per year
-  
+
   // Set default currency symbol based on locale (this can be overridden in settings)
   if (strcmp(locale, "en_US") == 0) {
     if ( (mpaRet = Model_setCurrencySymbol(this, "$")) != MPA_SUCCESS) { goto freemem; }
-    this->defaultMilliHourly = 19230;   // average U.S. salary = $40K
+    // average U.S. salary = $40K
+    if ( (mpaRet = Model_setDefaultMilliHourly(this, 19230)) != MPA_SUCCESS) { goto freemem; }
   } else if ( (strcmp(locale, "fr_FR") == 0) || (strcmp(locale, "de_DE") == 0) || (strcmp(locale, "es_ES") == 0) || (strcmp(locale, "it_IT") == 0) || (strcmp(locale, "pt_PT") == 0) ) {
     if ( (mpaRet = Model_setCurrencySymbol(this, "€")) != MPA_SUCCESS) { goto freemem; }
-    this->defaultMilliHourly = 9615;   // average EU salary = €20K
+    // average EU salary = €20K
+    if ( (mpaRet = Model_setDefaultMilliHourly(this, 9615)) != MPA_SUCCESS) { goto freemem; }
   } else if ( (strcmp(locale, "en_CN") == 0) || (strcmp(locale, "en_TW") == 0) ) {
     if ( (mpaRet = Model_setCurrencySymbol(this, "¥")) != MPA_SUCCESS) { goto freemem; }
-    this->defaultMilliHourly = 14423;   // average China salary = ¥29K 
+    // average China salary = ¥29K
+    if ( (mpaRet = Model_setDefaultMilliHourly(this, 14423)) != MPA_SUCCESS) { goto freemem; }
   } else {
     if ( (mpaRet = Model_setCurrencySymbol(this, "$")) != MPA_SUCCESS) { goto freemem; }
-    this->defaultMilliHourly = 19230;
+    if ( (mpaRet = Model_setDefaultMilliHourly(this, 19230)) != MPA_SUCCESS) { goto freemem; }
   }
 
   return mpaRet;
@@ -95,7 +98,7 @@ freemem:
 MagPebApp_ErrCode Model_reset(Model* this) {
   MPA_RETURN_IF_NULL(this);
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
-  
+
   this->numAttendees = 0;
   this->totalMilliHourly = 0;
   this->lastRateChangeTS = 0;
@@ -103,11 +106,11 @@ MagPebApp_ErrCode Model_reset(Model* this) {
   this->currentRateMilliCost = 0;
   this->totalMeetingMilliCost = 0;
   this->status = MODEL_STATE_NO_ATTENDEES;
-  
+
   return mpaRet;
 }
 
-  
+
 /////////////////////////////////////////////////////////////////////////////
 /// Gets the currency symbol.
 /// @param[in,out]  this  Pointer to Model; must be already allocated
@@ -131,8 +134,8 @@ MagPebApp_ErrCode Model_getCurrencySymbol(const Model* this, char** currSym) {
 /////////////////////////////////////////////////////////////////////////////
 /// Sets the currency symbol.
 /// @param[in,out]  this  Pointer to Model; must be already allocated
-/// @param[in]      currSym   Pointer to the custom C-string. 
-///       <em>Ownership is not transferred to this function, so the caller 
+/// @param[in]      currSym   Pointer to the custom C-string.
+///       <em>Ownership is not transferred to this function, so the caller
 ///       is still responsible for freeing this variable.</em>
 /////////////////////////////////////////////////////////////////////////////
 MagPebApp_ErrCode Model_setCurrencySymbol(Model* this, const char* currSym) {
@@ -155,51 +158,76 @@ MagPebApp_ErrCode Model_setCurrencySymbol(Model* this, const char* currSym) {
 
 
 /////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+MagPebApp_ErrCode Model_getDefaultMilliHourly(Model* this, uint32_t* defaultMilliHourly) {
+  MPA_RETURN_IF_NULL(this);
+  *defaultMilliHourly = this->defaultMilliHourly;
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Getting default hourly rate: %lu", *defaultMilliHourly);
+  return MPA_SUCCESS;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+MagPebApp_ErrCode Model_setDefaultMilliHourly(Model* this, const uint32_t defaultMilliHourly) {
+  MPA_RETURN_IF_NULL(this);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Setting default hourly rate to: %lu", defaultMilliHourly);
+  this->defaultMilliHourly = defaultMilliHourly;
+  return MPA_SUCCESS;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
 /// Adjust the number of persons attending the meeting and starts or stops
 /// the meeting if there are attendees.
 /// @param[in,out]  this  Pointer to Model; must be already allocated
-/// @param[in]      attenIncr  Number of attendees to increment or decrement. 
+/// @param[in]      attenIncr  Number of attendees to increment or decrement.
 ///       (Decrement happens if this value is negative. If decrement would
 ///       decrease the number of total attendees below zero, then an overflow
 ///       error will be the result.)
 /// @param[in]      attenMiliHourly  Hourly wage (in thousandths of currency
-///       units, eg. 50000 = $50/hr) of every attendee in this adjustment. 
+///       units, eg. 50000 = $50/hr) of every attendee in this adjustment.
+///       If this parameter is set to zero, then the model's default rate
+///       will be used.
 /// @return  MPA_SUCCESS on success
 ///          MPA_NULL_POINTER_ERR if the Model pointer (this) is NULL.
-///          MPA_OVERFLOW_ERR if the adjustment would cause an integer 
+///          MPA_OVERFLOW_ERR if the adjustment would cause an integer
 ///          overflow.
 /////////////////////////////////////////////////////////////////////////////
-MagPebApp_ErrCode Model_adjustAttendance(Model* this, const int16_t attenIncr, const uint16_t attenMilliHourly) {
+MagPebApp_ErrCode Model_adjustAttendance(Model* this, const int16_t attenIncr, const uint32_t c_attenMilliHourly) {
   MPA_RETURN_IF_NULL(this);
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
-  
+
+  uint32_t attenMilliHourly = (c_attenMilliHourly == 0) ? this->defaultMilliHourly : c_attenMilliHourly;
+
   uint16_t numAttendees = this->numAttendees;
   if ( (mpaRet = u16add_u16_s16(&numAttendees, numAttendees, attenIncr)) != MPA_SUCCESS) return mpaRet;
-  
-  int32_t salaryIncr = attenIncr * attenMilliHourly;  // No overflow possible for 32b = 16b * 16b
-  
+
+  int32_t salaryIncr = 0;
+  if ( (mpaRet = s32mult_s32_s32(&salaryIncr, (int32_t)attenMilliHourly, attenIncr)) != MPA_SUCCESS) return mpaRet;
+
   uint32_t totalMilliHourly = this->totalMilliHourly;
   if ( (mpaRet = u32add_u32_s32(&totalMilliHourly, totalMilliHourly, salaryIncr)) != MPA_SUCCESS) return mpaRet;
-      
+
   if ( (mpaRet = Model_calculateCost(this)) != MPA_SUCCESS) return mpaRet;
-  
+
   uint32_t lastRateMilliCost = 0;
   if ( (mpaRet = u32add_u32_s32(&lastRateMilliCost, this->lastRateMilliCost, this->currentRateMilliCost)) != MPA_SUCCESS) return mpaRet;
-  
+
   this->numAttendees = numAttendees;
   this->totalMilliHourly = totalMilliHourly;
   this->lastRateChangeTS = time(NULL);
   this->lastRateMilliCost = lastRateMilliCost;
   this->currentRateMilliCost = 0;
   this->totalMeetingMilliCost = this->lastRateMilliCost;
-  
+
   if (this->numAttendees <= 0) {
      if ( (mpaRet = Model_stopMeeting(this)) != MPA_SUCCESS) return mpaRet;
      this->status = MODEL_STATE_NO_ATTENDEES;
   } else {
      if ( (mpaRet = Model_startMeeting(this)) != MPA_SUCCESS) return mpaRet;
   }
-  
+
   return mpaRet;
 }
 
@@ -213,11 +241,11 @@ MagPebApp_ErrCode Model_adjustAttendance(Model* this, const int16_t attenIncr, c
 MagPebApp_ErrCode Model_startMeeting(Model* this) {
   MPA_RETURN_IF_NULL(this);
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
-  
+
   this->status = MODEL_STATE_STARTED;
   if (this->lastRateChangeTS == 0) this->lastRateChangeTS = time(NULL);
   if ( (mpaRet = Model_calculateCost(this)) != MPA_SUCCESS) return mpaRet;
-  
+
   return MPA_SUCCESS;
 }
 
@@ -233,25 +261,25 @@ MagPebApp_ErrCode Model_startMeeting(Model* this) {
 MagPebApp_ErrCode Model_stopMeeting(Model* this) {
   MPA_RETURN_IF_NULL(this);
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
-  
+
   if ( (mpaRet = Model_calculateCost(this)) != MPA_SUCCESS) return mpaRet;
-  
+
   uint32_t lastRateMilliCost = 0;
   if ( (mpaRet = u32add_u32_u32(&lastRateMilliCost, this->lastRateMilliCost, this->currentRateMilliCost)) != MPA_SUCCESS) return mpaRet;
-  
+
   this->status = MODEL_STATE_STOPPED;
   this->lastRateChangeTS = 0;
   this->lastRateMilliCost = lastRateMilliCost;
   this->currentRateMilliCost = 0;
   this->totalMeetingMilliCost = this->lastRateMilliCost;
-  
+
   return mpaRet;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
-/// Internal calculation routine to update the cost of a meeting that is in 
-/// progress. To optimize memory for Pebble, this function restricts its 
+/// Internal calculation routine to update the cost of a meeting that is in
+/// progress. To optimize memory for Pebble, this function restricts its
 /// math to integers.
 /// @param[in,out]  this  Pointer to Model; must be already allocated
 /// @return  MPA_SUCCESS on success
@@ -266,24 +294,24 @@ MagPebApp_ErrCode Model_calculateCost(Model* this) {
   if (this->lastRateChangeTS == 0) return mpaRet;
   time_t currentTime = time(NULL);
   uint32_t elapsedTimeAtRate = (currentTime - this->lastRateChangeTS);
-  
-  
+
+
   uint32_t currentRateMilliCost = 0;
   if ( (mpaRet = u32mult_u32_u32(&currentRateMilliCost, this->totalMilliHourly, elapsedTimeAtRate)) != MPA_SUCCESS) return mpaRet;
   currentRateMilliCost /= 3600;
-      
+
   uint32_t totalMeetingMilliCost = 0;
   if ( (mpaRet = u32add_u32_u32(&totalMeetingMilliCost, this->lastRateMilliCost, currentRateMilliCost)) != MPA_SUCCESS) return mpaRet;
-  
+
   this->currentRateMilliCost = currentRateMilliCost;
   this->totalMeetingMilliCost = totalMeetingMilliCost;
-  
+
   int32_t totalKiloSalary = this->totalMilliHourly * 208 / 100000;
-  s32RoundUp(&totalKiloSalary, totalKiloSalary, 10);
+  s32RoundNear(&totalKiloSalary, totalKiloSalary, 10);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Attendees: %u   Total Salary: %luK   Elapsed Time at Rate: %lu secs", this->numAttendees, totalKiloSalary, elapsedTimeAtRate);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Cents/hr: %lu   Cents/min: %lu   Cents/sec: %lu", this->totalMilliHourly/10, this->totalMilliHourly/600, this->totalMilliHourly/36000);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "LastRateCost: %lu   CurrentRateCost: %lu", this->lastRateMilliCost, this->currentRateMilliCost);
-  
+
   return mpaRet;
 }
 
@@ -301,31 +329,31 @@ MagPebApp_ErrCode Model_updateTime(Model* this, struct tm *tick_time, TimeUnits 
 
 
 /////////////////////////////////////////////////////////////////////////////
-/// Calculates the latest meeting cost and provides a string describing the 
+/// Calculates the latest meeting cost and provides a string describing the
 /// cost of the meeting formatted in the chosen currency.
 /// @param[in,out]  this  Pointer to Model; must be already allocated
-/// @param[out]     fmtdCost   Pointer to a C-string; must be NULL on entry. 
-///       <em>Ownership is transferred to the caller, and the caller 
+/// @param[out]     fmtdCost   Pointer to a C-string; must be NULL on entry.
+///       <em>Ownership is transferred to the caller, and the caller
 ///       is responsible for freeing this variable.</em>
 /// @return  MPA_SUCCESS on success
 ///          MPA_NULL_POINTER_ERR if the Model pointer (this) is NULL.
 ///          MPA_INVALID_INPUT_ERR if fmtdCost is not NULL.
-///          MPA_OUT_OF_MEMORY_ERR if memory could not be allocated. 
+///          MPA_OUT_OF_MEMORY_ERR if memory could not be allocated.
 ///          MPA_STRING_ERR if fmtdCost string could not be written correctly
 /////////////////////////////////////////////////////////////////////////////
 MagPebApp_ErrCode Model_getFmtdMeetingCost(const Model* this, char** fmtdCost) {
   MPA_RETURN_IF_NULL(this);
   if (*fmtdCost != NULL) { return MPA_INVALID_INPUT_ERR; }
   MagPebApp_ErrCode mpaRet = MPA_SUCCESS;
-  
+
   if ( (*fmtdCost = malloc(sizeof(**fmtdCost) * FMTD_COST_SZ)) == NULL) goto freemem;
-  
+
   long lret = 0;
   if ( (lret = snprintf(*fmtdCost, FMTD_COST_SZ, "%s%lu.%02lu", this->currencySymbol, this->totalMeetingMilliCost/1000, (this->totalMeetingMilliCost%1000)/10)) < 0) mpaRet = MPA_STRING_ERR;
   else if ((size_t)lret >= FMTD_COST_SZ) mpaRet = MPA_STRING_ERR;
-  
+
   return mpaRet;
-  
+
 freemem:
   if ( (*fmtdCost) != NULL) { free(*fmtdCost);  (*fmtdCost) = NULL; }
   return MPA_OUT_OF_MEMORY_ERR;

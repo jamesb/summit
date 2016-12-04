@@ -5,9 +5,9 @@ module.exports = function(minified) {
   // Clean up input before sending to watch.
   /////////////////////////////////////////////////////////////////////////////
   clayConfig.on(clayConfig.EVENTS.AFTER_BUILD, function() {
-    clayConfig.getItemByMessageKey('CUSTOM_STR').on('change', function() {
-      this.set(this.get().trim());
-    });
+//    clayConfig.getItemByMessageKey('CUSTOM_STR').on('change', function() {
+//      this.set(this.get().trim());
+//    });
   });
 
 };

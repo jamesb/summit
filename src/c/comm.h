@@ -4,6 +4,7 @@
 
 typedef struct ClaySettings {
   uint8_t settingsVer;
+  uint32_t defaultMilliHourly;
 } ClaySettings;
 
 

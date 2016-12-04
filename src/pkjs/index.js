@@ -35,9 +35,9 @@ Pebble.addEventListener('appmessage',
     console.log("AppMessage received: " + JSON.stringify(e.payload));
     var dict = e.payload;
 
-    if ('GET_CUSTOM_STR' in dict) {
-      var customStr = dict.GET_CUSTOM_STR;
-      console.log("Got custom string (" + customStr + ").");
+    if ('GET_CURRENCY_SYMBOL' in dict) {
+      var currSym = dict.GET_CURRENCY_SYMBOL;
+      console.log("Got currency symbol (" + currSym + ").");
     } else {
       console.log("Unrecognized app message: " + JSON.stringify(dict));
     }
