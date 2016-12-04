@@ -352,10 +352,14 @@ void comm_savePersistent() {
     // Fetch data stored elsewhere
     switch(keyIdx) {
       case CURRENCY_SYMBOL_SETTING: {
-        // There should be no allocated memory for this setting at this point.
-        strSettings[keyIdx] = NULL;
-        if ( (mpaRet = Model_getCurrencySymbol(dataModel, &strSettings[keyIdx])) != MPA_SUCCESS) {
+        if (strSettings[keyIdx] != NULL) { free(strSettings[keyIdx]); strSettings[keyIdx] = NULL; }
+				char* tempPtr = NULL;
+        if ( (mpaRet = Model_getCurrencySymbol(dataModel, &tempPtr)) != MPA_SUCCESS) {
           APP_LOG(APP_LOG_LEVEL_ERROR, "Could not retrieve custom string: %s", MagPebApp_getErrMsg(mpaRet));
+          return;
+        }
+        if ( (mpaRet = strxcpyalloc(&strSettings[keyIdx], tempPtr)) != MPA_SUCCESS) {
+          APP_LOG(APP_LOG_LEVEL_ERROR, "Error in strxcpyalloc: %s", MagPebApp_getErrMsg(mpaRet));
           return;
         }
         break;
