@@ -1,4 +1,4 @@
-var appName = "MPA_Skeleton";
+var appName = "Summit";
 var Clay = require('pebble-clay');
 var clayConfig = require('./config');
 var customClay = require('./custom-clay');

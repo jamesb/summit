@@ -1,7 +1,7 @@
 module.exports = [
   {
     "type": "heading",
-    "defaultValue": "MPA Skeleton"
+    "defaultValue": "Summit"
   },
   {
     "type": "section",
