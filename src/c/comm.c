@@ -396,9 +396,13 @@ void comm_loadPersistent() {
     persist_read_data(SETTINGS_STRUCT_KEY, &settings, sizeof(settings));
   }
 
-	if ( (mpaRet = Model_setDefaultMilliHourly(dataModel, settings.defaultMilliHourly)) != MPA_SUCCESS) {
-		APP_LOG(APP_LOG_LEVEL_ERROR, "Error setting %s in data model: %s", "default salary", MagPebApp_getErrMsg(mpaRet));
-	}
+  if (settings.defaultMilliHourly <= 0) {
+    APP_LOG(APP_LOG_LEVEL_WARNING, "Tried to set a default salary of zero.");
+  } else {
+  	if ( (mpaRet = Model_setDefaultMilliHourly(dataModel, settings.defaultMilliHourly)) != MPA_SUCCESS) {
+  		APP_LOG(APP_LOG_LEVEL_ERROR, "Error setting %s in data model: %s", "default salary", MagPebApp_getErrMsg(mpaRet));
+  	}
+  }
 
   // Read all string settings
   int keyIdx;
