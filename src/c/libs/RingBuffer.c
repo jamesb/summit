@@ -1,4 +1,9 @@
 #include <pebble.h>
+
+// Deactivate APP_LOG in this file.
+#undef APP_LOG
+#define APP_LOG(...)
+
 #include "RingBuffer_Internal.h"
 
 
@@ -46,7 +51,7 @@ MagPebApp_ErrCode RingBuffer_init(RingBuffer* this, size_t capacity) {
 
   if ( (capacity == 0) || ((capacity + 1) == 0) ) { myRet = MPA_INVALID_INPUT_ERR; goto freemem; }
   this->length = capacity + 1;
-  
+
   // Allocate slots
   this->buf = calloc(this->length, sizeof(*this->buf));
   if (this->buf == NULL) { goto freemem; }
@@ -125,19 +130,19 @@ MagPebApp_ErrCode RingBuffer_full(RingBuffer* this, bool* out) {
 /////////////////////////////////////////////////////////////////////////////
 MagPebApp_ErrCode RingBuffer_peek(RingBuffer* this, void** data) {
   MPA_RETURN_IF_NULL(this);
-  
+
   if (RING_BUFFER_EMPTY(this)) {
     *data = NULL;
     return MPA_EMPTY_ERR;
   }
-  
+
   *data = this->buf[this->read];
   return MPA_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
-/// Removes the first data element from the buffer slot. (Advances the read 
+/// Removes the first data element from the buffer slot. (Advances the read
 /// pointer without retrieving the data.)
 /// @param[in,out]  this  Pointer to RingBuffer; must be already allocated
 ///
@@ -148,11 +153,11 @@ MagPebApp_ErrCode RingBuffer_peek(RingBuffer* this, void** data) {
 MagPebApp_ErrCode RingBuffer_drop(RingBuffer* this) {
   MPA_RETURN_IF_NULL(this);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "RingBuffer DROP");
-  
+
   if (RING_BUFFER_EMPTY(this)) {
     return MPA_EMPTY_ERR;
   }
-  
+
   RING_BUFFER_ADVANCE_READ(this, 1);
   return MPA_SUCCESS;
 }
@@ -170,15 +175,15 @@ MagPebApp_ErrCode RingBuffer_drop(RingBuffer* this) {
 MagPebApp_ErrCode RingBuffer_read(RingBuffer* this, void** data) {
   MPA_RETURN_IF_NULL(this);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "RingBuffer READ");
-  
+
   if (RING_BUFFER_EMPTY(this)) {
     *data = NULL;
     return MPA_EMPTY_ERR;
   }
-  
+
   *data = this->buf[this->read];
   RING_BUFFER_ADVANCE_READ(this, 1);
-  
+
   return MPA_SUCCESS;
 }
 
@@ -196,11 +201,11 @@ MagPebApp_ErrCode RingBuffer_read(RingBuffer* this, void** data) {
 MagPebApp_ErrCode RingBuffer_write(RingBuffer* this, void* data) {
   MPA_RETURN_IF_NULL(this);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "RingBuffer WRITE");
-  
+
   if (RING_BUFFER_FULL(this)) {
     return MPA_FULL_ERR;
   }
-  
+
   this->buf[this->write] = data;
   RING_BUFFER_ADVANCE_WRITE(this, 1);
   return MPA_SUCCESS;

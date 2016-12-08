@@ -1,8 +1,8 @@
 #include <pebble.h>
 
 // Deactivate APP_LOG in this file.
-// #undef APP_LOG
-// #define APP_LOG(...)
+#undef APP_LOG
+#define APP_LOG(...)
 
 #include "misc.h"
 
@@ -113,7 +113,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     if (!unloadTupleStr(&currencySymbolBuf, bufsize, tuple, readable)) {
       APP_LOG(APP_LOG_LEVEL_ERROR, "Error in unloadTupleStr.");
     } else {
-      APP_LOG(APP_LOG_LEVEL_INFO, "currencySymbolBuf = %s", currencySymbolBuf);
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "currencySymbolBuf = %s", currencySymbolBuf);
       if ( (mpaRet = Model_setCurrencySymbol(dataModel, currencySymbolBuf)) != MPA_SUCCESS) {
         APP_LOG(APP_LOG_LEVEL_ERROR, "Error setting %s in data model: %s", readable, MagPebApp_getErrMsg(mpaRet));
       }
@@ -366,9 +366,6 @@ void comm_savePersistent() {
       }
     } // end switch(keyIdx)
 
-
-
-APP_LOG(APP_LOG_LEVEL_INFO, "About to write to persistent memory...");
 
     // Write data to persistent memory on watch
     status_t result = 0;

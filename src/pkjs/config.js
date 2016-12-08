@@ -42,8 +42,8 @@ module.exports = [
         "type": "slider",
         "messageKey": "DEFAULT_KILO_SALARY",
         "defaultValue": 50,
-        "label": "Default Annual Wage",
-        "description": "Average salary to use for people attending a meeting",
+        "label": "Default Annual Wage (in thousands)",
+        "description": "Average salary to use for meeting attendees; eg. 50 = $50,000",
         "min": 10,
         "max": 200,
         "step": 10

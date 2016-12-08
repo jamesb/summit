@@ -1,8 +1,8 @@
 #include <pebble.h>
 
 // Deactivate APP_LOG in this file.
-//#undef APP_LOG
-//#define APP_LOG(...)
+#undef APP_LOG
+#define APP_LOG(...)
 
 #include "../misc.h"
 #include "../data/Model.h"
@@ -14,7 +14,7 @@
 enum MenuItems {
   MNU_ITEM_TOGGLE_MTG = 0,
   MNU_ITEM_RESET_MTG,
-  
+
 #if 0
   MNU_ITEM_DEFAULT_PAY_RATE,
 #endif
@@ -157,7 +157,7 @@ void wndSettings_updateData(const Model* model) {
   if ( (mpaRet = Model_getStatus(dataModel, &mtgStatus)) != MPA_SUCCESS) {
       APP_LOG(APP_LOG_LEVEL_ERROR, "Error encountered: %s", MagPebApp_getErrMsg(mpaRet));
   }
-  
+
   switch (mtgStatus) {
     case MODEL_STATE_STOPPED: {
       if (!strxcpy(statusMsg, STATUS_MSG_SZ, "Resume Meeting", NULL)) { return; }
@@ -201,7 +201,7 @@ static void wndSettings_load(Window* window) {
 
   menu_layer_set_normal_colors(lyrSettings, colors.normalBack, colors.normalFore);
   menu_layer_set_highlight_colors(lyrSettings, colors.highltBack, colors.highltFore);
-  
+
   menu_layer_set_click_config_onto_window(lyrSettings, window);
   layer_add_child(lyrRoot, menu_layer_get_layer(lyrSettings));
 }
@@ -242,7 +242,7 @@ void wndSettings_create() {
     return;
   }
   wndSettings = window_create();
-  
+
   INIT_MPA_PALETTE(colors);
   (void) colors;  // silence the unused variable warning
 
